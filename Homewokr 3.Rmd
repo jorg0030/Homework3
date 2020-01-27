@@ -1,0 +1,189 @@
+---
+title: "Homework 3"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+**Alexis Jorgensen**
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Part 1
+
+## 1-2.
+
+```{r}
+Killarney<-read.csv("Killarney.csv")
+
+boxplot(Killarney$Diversity~Killarney$status, xlab="Lake Status", ylab="Species Diversity", main="Plankton Diversity of Lakes in Kilalrney National Park", col=c("darkred", "green", "blue"), las=1)
+```
+
+Species diversity appears to be higher in neutral and recovered lakes than in acidic lakes. However, the spread of data indicated that these differencws may not be statisitcally signficant. 
+
+## 3.
+
+```{r}
+ANOVA1<-aov(Killarney$Diversity~Killarney$status)
+summary(ANOVA1)
+```
+
+
+## 4. 
+Ho: there is no difference in the mean plankton diversity in lakes of different status.
+
+## 5.
+The observed tet statistic is 16.41 with a p value of 5.43e-06
+```{r}
+qf(0.975,2,42)
+```
+
+## 6. 
+p << 0.05 indicating that at least one of the lake types has a signifcantly different mean diversity than the others
+
+## 7. 
+```{r}
+TukeyHSD(aov(Killarney$Diversity~Killarney$status))
+```
+
+# 8.
+The plankton diversity in acidic lakes differs from both that of neutral and recovered lakes. The diversity of plankton in recovered lakes differs significantly from that of acidic lakes, but not neutral lakes.
+
+## 9. 
+```{r}
+shapiro.test(ANOVA1$residuals)
+library(car)
+leveneTest(Killarney$Diversity, Killarney$status)
+```
+
+Shapiro-Wilk Test results: p < 0.05 indicating that the residuals are not normally distributed. 
+
+Levenes Test Results: p > 0.05 indicating that the variances of each group are homoscedastic
+
+This data does not meet the assumptions of an ANOVA because the residuals are not normally distributed.
+
+
+# Part 1b
+
+```{r}
+Data<-read.csv("esoph.csv")
+```
+
+## 10.
+a)
+```{r}
+ANCOVA1<-aov(Data$ncases~Data$Alcohol*Data$Tobacco)
+summary(ANCOVA1)
+```
+
+b) The ANOVA table above indicates that p > 0.05 for alcohol, tobacco, and the interaction between the two suggesting that none of these factors has signifcant infuence on the risk of developing esophigal cancer.
+
+
+## 11.
+
+a)
+```{r}
+ANCOVA2<-aov(Data$ncases~Data$Age*Data$Tobacco)
+summary(ANCOVA2)
+```
+
+b)
+```{r}
+TukeyHSD(ANCOVA2)
+```
+
+c) ANCOVa2 suggests that age and tobacco use have a signficant influence on the occurence of cancer, but the interaction between them does not. The Tukey results indicate the following:
+
+The incidence of cancer among 25-34 year olds is signficantly different than for indivduals aged 45-54, 55-64,and 65-74
+
+The incidence of cancer among 35-44 year olds is signficantly different than for indivduals aged 45-54, 55-64 and 65-74
+
+The incidence of cancer among 75+ year olds is signficantly different than for indivduals aged 55-64 and 65-74
+
+The incidence of cancer among individuals who use 0-9g of tobacco per day is signficantrly different than for those using 20-29g/day or more than 30g/day
+
+# 12.
+a)
+```{r}
+ANCOVA3<-aov(Data$ncases~Data$Age*Data$Alcohol)
+summary(ANCOVA3)
+```
+
+b)
+```{r}
+interaction.plot(Data$Age,Data$Alcohol,Data$ncases,legend=T, xlab="Age",ylab="Mean # of Cases",las=1)
+```
+
+c) In the ANOVA table, p < 0.05 for alcohol consumption, age, and the interaction between them indicating that all have a signifcant effect on the occurence of cancer. The interaction plot indicates that this relationship is complicated, with the impact of different amounts of alcohol varying depending on the age of the consumer. However, the amount of alcohol consumed appears to have little impact on cancer rates among those 20-34 and 75+ years old.
+
+# Part 2
+
+## 13. 
+```{r}
+mtcars
+```
+
+a-b.
+```{r}
+plot(mtcars$wt,mtcars$mpg,xlab = "Weight (1000lbs)", ylab = "Fuel Mileage (miles/gallon)")
+glm(mtcars$mpg~mtcars$wt)
+Regression<-glm(mtcars$mpg~mtcars$wt)
+summary.lm(Regression)
+
+abline(Regression,col="blue")
+```
+
+c) The equation of the regression is Y = 37.2851 + -5.3445X
+
+
+d) The regression results indicate that there is a sigificant negative correlation between milleage and car weight as p for both the intercept and and slope << 0.05. p-slope = 1.29e-10 and p-intercept =  < 2e-16
+
+
+## 14.
+a-b.
+```{r}
+plot(mtcars$hp,mtcars$qsec,xlab="Horsepower",ylab="Quarter Mile Time")
+Regression2<-glm(mtcars$qsec~mtcars$hp)
+summary.lm(Regression2)
+abline(Regression2, col="blue")
+```
+
+c) The equation of the line is Y = 20.556354 + -0.018458X
+
+d) The quarter mile time for a 300 horsepower car according to this regression would be 15.02
+```{r}
+20.556354+(-0.018458*300)
+```
+
+e) p-intecept = < 2e-16 and p-slope = 5.77e-06. Both of these values are << 0.05 indicating that there is a signifcant, negative correlation between horsepower and quarter mile time.
+
+f)
+```{r}
+library(gvlma)
+gvlma(lm(Regression2))
+```
+
+f) Though the Kurtosis test has a p < 0.05, the Global Stat assumptions are acceptable indicating that the assumptions for the linear regression were met.
+
+## 15. Correlation
+
+a)
+```{r}
+#?iris
+```
+
+b-c.
+```{r}
+plot(iris$Petal.Length,iris$Sepal.Length, xlab = "Petal Length",ylab = "Sepal Lenght", las=1)
+Correlation<-glm(iris$Sepal.Length~iris$Petal.Length)
+summary.lm(Correlation)
+sqrt(0.76)
+abline(Correlation)
+```
+
+c) Petal length and sepal length in this data set are highly correlated with a correlation coefficient of 0.87
+
+d) Both p-intercept and p-slope are <2e-16. This indicates a significant correlation as both are << 0.05
